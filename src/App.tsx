@@ -31,11 +31,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   ChevronDown,
-  PieChart,
-  Database,
-  Search,
-  Lightbulb,
-  FileCheck
+  PieChart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Papa from 'papaparse';
@@ -137,8 +133,6 @@ export default function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [expandedFoundations, setExpandedFoundations] = useState<number[]>([]);
   const [lampOn, setLampOn] = useState(true);
-  const [loadingStep, setLoadingStep] = useState(0);
-  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -149,42 +143,6 @@ export default function App() {
       resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [result]);
-
-  // Loading Steps Logic
-  useEffect(() => {
-    let interval: any;
-    
-    if (isAnalyzing) {
-      setLoadingStep(1);
-      setLoadingProgress(0);
-      
-      const stepTimers = [
-        { step: 2, delay: 4000 },
-        { step: 3, delay: 9000 },
-        { step: 4, delay: 14000 },
-      ];
-      
-      const stepTimeoutIds = stepTimers.map(s => 
-        setTimeout(() => setLoadingStep(s.step), s.delay)
-      );
-      
-      const startTime = Date.now();
-      const duration = 18000;
-      
-      interval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(85, (elapsed / duration) * 85);
-        setLoadingProgress(progress);
-      }, 100);
-
-      return () => {
-        stepTimeoutIds.forEach(id => clearTimeout(id));
-        clearInterval(interval);
-      };
-    } else {
-      setLoadingProgress(100);
-    }
-  }, [isAnalyzing]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
     e.preventDefault();
@@ -208,7 +166,7 @@ export default function App() {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: (results: any) => {
           setCsvData(results.data);
           if (results.meta.fields) {
             setColumns(results.meta.fields);
@@ -220,7 +178,8 @@ export default function App() {
 
   const handleRunAnalysis = async () => {
     if (!file || !csvData.length) return;
-    if (!apiKey && !process.env.GEMINI_API_KEY) {
+    const geminiKey = (import.meta.env.VITE_GEMINI_API_KEY || apiKey) as string | undefined;
+    if (!apiKey && !geminiKey) {
       setError('Please provide a Gemini API key.');
       return;
     }
@@ -230,7 +189,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const finalApiKey = apiKey || process.env.GEMINI_API_KEY;
+      const finalApiKey = apiKey || (import.meta.env.VITE_GEMINI_API_KEY as string);
       const ai = new GoogleGenAI({ apiKey: finalApiKey! });
       
       const analysisMode = ANALYSIS_MODES.find(m => m.id === selectedMode)?.label || selectedMode;
@@ -454,7 +413,7 @@ export default function App() {
           <div class="section">
             <h2>Key Performance Indicators</h2>
             <div class="metrics-grid">
-              ${result.key_metrics.map(m => `
+              ${result.key_metrics.map((m: any) => `
                 <div class="metric-card">
                   <div class="metric-label">${m.label}</div>
                   <div class="metric-value">${m.value}</div>
@@ -466,7 +425,7 @@ export default function App() {
 
           <div class="section">
             <h2>Strategic Findings</h2>
-            ${result.key_findings.map(f => `
+            ${result.key_findings.map((f: any) => `
               <div class="finding">
                 <strong>${f.title}</strong>
                 <p>${f.description}</p>
@@ -476,7 +435,7 @@ export default function App() {
 
           <div class="section">
             <h2>Recommendations</h2>
-            ${result.recommendations.map(r => `
+            ${result.recommendations.map((r: any) => `
               <div class="recommendation impact-${r.impact.toLowerCase()}">
                 <strong>${r.action} (${r.impact} Impact)</strong>
                 <p>${r.description}</p>
@@ -506,19 +465,19 @@ export default function App() {
     const { x_column, y_column } = result.chart_primary;
     const { column: distColumn } = result.chart_secondary || {};
 
-    const availableColumns = columns.map(c => c.toLowerCase());
-    const xKey = columns.find(c => c.toLowerCase() === x_column.toLowerCase()) || columns[0];
-    const yKey = columns.find(c => c.toLowerCase() === y_column.toLowerCase()) || columns[1];
-    const distKey = distColumn ? columns.find(c => c.toLowerCase() === distColumn.toLowerCase()) : null;
+    const availableColumns = columns.map((c: string) => c.toLowerCase());
+    const xKey = columns.find((c: string) => c.toLowerCase() === x_column.toLowerCase()) || columns[0];
+    const yKey = columns.find((c: string) => c.toLowerCase() === y_column.toLowerCase()) || columns[1];
+    const distKey = distColumn ? columns.find((c: string) => c.toLowerCase() === distColumn.toLowerCase()) : null;
 
     const displayData = csvData.slice(0, 15);
     
     // Primary Chart Data
     const primary = {
-      labels: displayData.map(d => String(d[xKey] || '')),
+      labels: displayData.map((d: any) => String(d[xKey] || '')),
       datasets: [{
         label: yKey,
-        data: displayData.map(d => {
+        data: displayData.map((d: any) => {
           const val = d[yKey];
           if (typeof val === 'string') return parseFloat(val.replace(/[^0-9.-]+/g, ""));
           return Number(val) || 0;
@@ -544,7 +503,7 @@ export default function App() {
     let secondary = null;
     if (distKey) {
       const distributionMap: {[key: string]: number} = {};
-      csvData.slice(0, 100).forEach(row => {
+      csvData.slice(0, 100).forEach((row: any) => {
         const val = String(row[distKey] || 'Other');
         distributionMap[val] = (distributionMap[val] || 0) + 1;
       });
@@ -596,8 +555,8 @@ export default function App() {
   };
 
   const toggleAccordion = (index: number) => {
-    setExpandedFoundations(prev => 
-      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+    setExpandedFoundations((prev: number[]) =>
+      prev.includes(index) ? prev.filter((i: number) => i !== index) : [...prev, index]
     );
   };
 
@@ -764,83 +723,13 @@ export default function App() {
                       </div>
                     </motion.div>
                   ) : isAnalyzing ? (
-                    <motion.div key="analyzing" className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-[400px]">
-                      {/* Top Progress Bar */}
-                      <div className="absolute top-0 left-0 w-full h-0.5 bg-brand-divider overflow-hidden z-30">
-                        <div 
-                          className="h-full bg-brand-primary transition-all duration-300 ease-out relative"
-                          style={{ width: `${loadingProgress}%` }}
-                        >
-                          <div className="progress-shimmer" />
-                        </div>
+                    <motion.div key="analyzing" className="flex-1 flex flex-col items-center justify-center py-20">
+                      <div className="relative mb-8">
+                        <div className="w-16 h-16 border-2 border-brand-divider rounded-full" />
+                        <div className="absolute inset-0 border-t-2 border-brand-primary rounded-full animate-spin" />
                       </div>
-
-                      <div className="max-w-xs w-full space-y-8">
-                        <div className="space-y-6">
-                          {[
-                            { id: 1, label: "Reading your data...", icon: Database },
-                            { id: 2, label: "Identifying patterns...", icon: Search },
-                            { id: 3, label: "Building recommendations...", icon: Lightbulb },
-                            { id: 4, label: "Finalizing your report...", icon: FileCheck },
-                          ].map((step) => {
-                            const isActive = loadingStep === step.id;
-                            const isDone = loadingStep > step.id;
-                            
-                            return (
-                              <div key={step.id} className="relative flex items-center gap-5 group">
-                                {/* Timeline Connector */}
-                                {step.id < 4 && (
-                                  <div className={`absolute left-[13px] top-8 w-[1px] h-6 transition-colors duration-500 ${
-                                    isDone ? 'bg-brand-primary/50' : 'bg-brand-divider'
-                                  }`} />
-                                )}
-
-                                {/* Icon Circle */}
-                                <div className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-500 ${
-                                  isActive ? 'border-brand-primary bg-brand-primary/10 step-icon active' : 
-                                  isDone ? 'border-brand-primary/40 bg-brand-primary/5' : 
-                                  'border-brand-divider bg-brand-background'
-                                }`}>
-                                  <step.icon size={13} className={isActive ? 'text-brand-primary' : isDone ? 'text-brand-primary/60' : 'text-brand-text-muted'} />
-                                  
-                                  {isActive && (
-                                    <div className="absolute inset-0 rounded-full bg-brand-primary/20 animate-ping opacity-25" />
-                                  )}
-                                </div>
-
-                                {/* Step Label */}
-                                <div className="flex-1">
-                                  <div className="flex items-center justify-between gap-4">
-                                    <span className={`text-[13px] tracking-wide transition-all duration-500 ${
-                                      isActive ? 'text-white font-semibold' : 
-                                      'text-brand-text-secondary'
-                                    } ${!isActive && !isDone ? 'text-brand-text-muted opacity-50' : ''}`}>
-                                      {step.label}
-                                    </span>
-                                    
-                                    {/* Status Indicator */}
-                                    <div className="flex-shrink-0">
-                                      {isActive ? (
-                                        <div className="w-4 h-4 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
-                                      ) : isDone ? (
-                                        <CheckCircle2 size={14} className="text-success-green" />
-                                      ) : (
-                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-divider" />
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <div className="text-center pt-4">
-                          <p className="text-[10px] text-brand-text-muted italic opacity-60">
-                            This usually takes 15-30 seconds
-                          </p>
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-bold mb-2">Analyzing Data Structure</h3>
+                      <p className="text-brand-text-muted text-sm text-center max-w-[300px]">Extracting patterns and generating professional insights for your report...</p>
                     </motion.div>
                   ) : (
                     <motion.div 
