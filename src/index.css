@@ -1,0 +1,287 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-background: #0a0a0a;
+  --color-brand-surface: #111111;
+  --color-brand-border: #1e1e1e;
+  --color-brand-primary: #e8622a;
+  --color-brand-accent-hover: #ff7a3d;
+  --color-brand-text-secondary: #888888;
+  --color-brand-text-muted: #444444;
+  --color-brand-divider: #1a1a1a;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-background text-white antialiased selection:bg-brand-primary/30;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+
+  /* Hide scrollbar but allow functionality */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    background-color: #0c0c0c;
+  }
+}
+
+.glass {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(232, 98, 42, 0.05); border-color: #1e1e1e; }
+  50% { box-shadow: 0 0 40px rgba(232, 98, 42, 0.15); border-color: #e8622a; }
+}
+
+.demo-panel-glow {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.sleek-card-shadow {
+  box-shadow: 0 0 40px rgba(232, 98, 42, 0.08);
+}
+
+.sleek-border-glow {
+  box-shadow: 0 0 20px rgba(232, 98, 42, 0.05);
+}
+
+@keyframes sectionReveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.report-section {
+  animation: sectionReveal 0.4s ease forwards;
+  opacity: 0;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-content.open {
+  max-height: 1000px; /* Increased to accommodate content */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #252525;
+}
+
+/* Premium Lamp Component Styles */
+.lamp-section {
+  position: relative;
+  width: 100%;
+  background: #0a0a0a;
+  overflow: hidden;
+  transition: background 0.6s ease;
+}
+
+.lamp-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding-top: 40px;
+  position: relative;
+  z-index: 30;
+}
+
+.toggle-label-off,
+.toggle-label-on {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #444;
+  transition: color 0.3s ease;
+  text-transform: uppercase;
+}
+
+.lamp-toggle {
+  width: 52px;
+  height: 28px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 100px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.lamp-toggle.active {
+  background: #1a0d05;
+  border-color: #e8622a;
+  box-shadow: 
+    inset 0 2px 4px rgba(0,0,0,0.3),
+    0 0 12px rgba(232,98,42,0.3),
+    0 0 24px rgba(232,98,42,0.15);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #333;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.lamp-toggle.active .toggle-thumb {
+  left: 27px;
+  background: #e8622a;
+  box-shadow: 
+    0 0 8px rgba(232,98,42,0.8),
+    0 0 16px rgba(232,98,42,0.4);
+}
+
+.lamp-toggle.active ~ .toggle-label-on {
+  color: #e8622a;
+}
+
+.lamp-line-wrapper {
+  position: relative;
+  z-index: 25;
+}
+
+.lamp-line {
+  width: 600px;
+  max-width: 80vw;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff6a1a, #ff8c42, #ffffff, #ff8c42, #ff6a1a, transparent);
+  box-shadow: 
+    0 0 6px 2px rgba(255,255,255,0.6),
+    0 0 12px 4px rgba(255,140,66,0.9),
+    0 0 30px 10px rgba(232,98,42,0.7),
+    0 0 80px 30px rgba(232,98,42,0.35),
+    0 0 140px 60px rgba(232,98,42,0.15);
+  border-radius: 2px;
+  margin: 0 auto;
+  transition: opacity 0.6s ease, box-shadow 0.6s ease;
+  opacity: 0;
+}
+
+.lamp-cone {
+  width: 100%;
+  height: 420px;
+  background: 
+    radial-gradient(ellipse 500px 180px at 50% 0%, 
+      rgba(255,140,66,0.18) 0%, 
+      rgba(232,98,42,0.12) 20%, 
+      transparent 70%),
+    radial-gradient(ellipse 900px 420px at 50% 0%, 
+      rgba(232,98,42,0.10) 0%, 
+      rgba(232,98,42,0.05) 40%, 
+      transparent 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+@keyframes lampFlicker {
+  0% { opacity: 0.7; }
+  20% { opacity: 1; }
+  40% { opacity: 0.85; }
+  60% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes coneExpand {
+  from { 
+    opacity: 0; 
+    transform: scaleY(0);
+  }
+  to { 
+    opacity: 1; 
+    transform: scaleY(1);
+  }
+}
+
+@keyframes lampPulse {
+  0%   { box-shadow: 0 0 6px 2px rgba(255,255,255,0.6), 0 0 12px 4px rgba(255,140,66,0.9), 0 0 30px 10px rgba(232,98,42,0.7), 0 0 80px 30px rgba(232,98,42,0.35), 0 0 140px 60px rgba(232,98,42,0.15); }
+  50%  { box-shadow: 0 0 8px 3px rgba(255,255,255,0.8), 0 0 18px 6px rgba(255,140,66,1.0), 0 0 45px 16px rgba(232,98,42,0.85), 0 0 110px 45px rgba(232,98,42,0.45), 0 0 180px 80px rgba(232,98,42,0.2); }
+  100% { box-shadow: 0 0 6px 2px rgba(255,255,255,0.6), 0 0 12px 4px rgba(255,140,66,0.9), 0 0 30px 10px rgba(232,98,42,0.7), 0 0 80px 30px rgba(232,98,42,0.35), 0 0 140px 60px rgba(232,98,42,0.15); }
+}
+
+.lamp-on .lamp-line {
+  opacity: 1;
+  animation: lampFlicker 0.5s ease forwards, lampPulse 3s ease-in-out 0.5s infinite;
+}
+
+.lamp-on .lamp-cone {
+  opacity: 1;
+  animation: coneExpand 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.how-it-works-content {
+  position: relative;
+  z-index: 20;
+  transition: filter 0.6s ease;
+}
+
+.lamp-on .how-it-works-content {
+  filter: brightness(1.1);
+}
+
+@media (max-width: 768px) {
+  .lamp-line {
+    width: 80vw;
+  }
+  .lamp-cone {
+    background: 
+      radial-gradient(ellipse 80vw 140px at 50% 0%, 
+        rgba(255,140,66,0.16) 0%, 
+        rgba(232,98,42,0.10) 25%, 
+        transparent 70%),
+      radial-gradient(ellipse 100vw 300px at 50% 0%, 
+        rgba(232,98,42,0.08) 0%, 
+        transparent 100%);
+    height: 300px;
+  }
+}
+
